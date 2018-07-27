@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on Math &#43; Programming</title>
+    <link>https://andreweltsch.com/tags/</link>
+    <description>Recent content in Tags on Math &#43; Programming</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018 Andre Weltsch</copyright>
+    <lastBuildDate>Thu, 26 Jul 2018 12:00:00 +0000</lastBuildDate>
+    <atom:link href="/tags/" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Integer Programming</title>
+      <link>https://andreweltsch.com/tags/integer-programming/</link>
+      <pubDate>Thu, 26 Jul 2018 12:00:00 +0000</pubDate>
+      
+      <guid>https://andreweltsch.com/tags/integer-programming/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Keyboards</title>
+      <link>https://andreweltsch.com/tags/keyboards/</link>
+      <pubDate>Thu, 26 Jul 2018 12:00:00 +0000</pubDate>
+      
+      <guid>https://andreweltsch.com/tags/keyboards/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Linear Programming</title>
+      <link>https://andreweltsch.com/tags/linear-programming/</link>
+      <pubDate>Thu, 26 Jul 2018 12:00:00 +0000</pubDate>
+      
+      <guid>https://andreweltsch.com/tags/linear-programming/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Optimization</title>
+      <link>https://andreweltsch.com/tags/optimization/</link>
+      <pubDate>Thu, 26 Jul 2018 12:00:00 +0000</pubDate>
+      
+      <guid>https://andreweltsch.com/tags/optimization/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Post</title>
+      <link>https://andreweltsch.com/tags/post/</link>
+      <pubDate>Thu, 26 Jul 2018 12:00:00 +0000</pubDate>
+      
+      <guid>https://andreweltsch.com/tags/post/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
