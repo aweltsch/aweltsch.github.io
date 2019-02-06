@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Math &#43; Programming on Math &#43; Programming</title>
+    <title>MATH &#43; PROGRAMMING on MATH &#43; PROGRAMMING</title>
     <link>https://andreweltsch.com/</link>
-    <description>Recent content in Math &#43; Programming on Math &#43; Programming</description>
+    <description>Recent content in MATH &#43; PROGRAMMING on MATH &#43; PROGRAMMING</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>&amp;copy; 2018 Andre Weltsch</copyright>
+    <copyright>&amp;copy; Andre Weltsch 2019</copyright>
     <lastBuildDate>Wed, 20 Apr 2016 00:00:00 +0000</lastBuildDate>
     <atom:link href="/" rel="self" type="application/rss+xml" />
     
@@ -266,6 +266,15 @@ My implementation can be found &lt;a href=&#34;https://www.github.com/aweltsch&#
 &lt;/tbody&gt;
 &lt;/table&gt;
 </description>
+    </item>
+    
+    <item>
+      <title>Bachelor&#39;s Thesis</title>
+      <link>https://andreweltsch.com/publication/bachelors-thesis/</link>
+      <pubDate>Thu, 02 Jun 2016 00:00:00 +0200</pubDate>
+      
+      <guid>https://andreweltsch.com/publication/bachelors-thesis/</guid>
+      <description></description>
     </item>
     
   </channel>
