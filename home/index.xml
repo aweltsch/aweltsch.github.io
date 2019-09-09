@@ -13,6 +13,7 @@
     
     
     <item>
+<<<<<<< HEAD
       <title></title>
       <link>https://andreweltsch.com/home/hero_carousel/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -22,6 +23,8 @@
     </item>
     
     <item>
+=======
+>>>>>>> 92060f40bd013222cbd2b664c1fd1ac72a96d7fe
       <title>About Me</title>
       <link>https://andreweltsch.com/home/about/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -31,6 +34,7 @@
     </item>
     
     <item>
+<<<<<<< HEAD
       <title>Academic</title>
       <link>https://andreweltsch.com/home/hero/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -67,6 +71,8 @@
     </item>
     
     <item>
+=======
+>>>>>>> 92060f40bd013222cbd2b664c1fd1ac72a96d7fe
       <title>Recent Posts</title>
       <link>https://andreweltsch.com/home/posts/</link>
       <pubDate>Wed, 20 Apr 2016 00:00:00 +0000</pubDate>
@@ -85,6 +91,7 @@
     </item>
     
     <item>
+<<<<<<< HEAD
       <title>Recent Publications</title>
       <link>https://andreweltsch.com/home/publications/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -140,6 +147,8 @@ To remove this section, either delete content/home/teaching.md or edit the front
     </item>
     
     <item>
+=======
+>>>>>>> 92060f40bd013222cbd2b664c1fd1ac72a96d7fe
       <title>Contact</title>
       <link>https://andreweltsch.com/home/contact/</link>
       <pubDate>Wed, 20 Apr 2016 00:00:00 +0000</pubDate>
