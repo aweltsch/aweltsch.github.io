@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>MATH &#43; PROGRAMMING on MATH &#43; PROGRAMMING</title>
@@ -6,9 +5,176 @@
     <description>Recent content in MATH &#43; PROGRAMMING on MATH &#43; PROGRAMMING</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>&amp;copy; Andre Weltsch 2019</copyright>
-    <lastBuildDate>Wed, 20 Apr 2016 00:00:00 +0000</lastBuildDate>
+    <copyright>&lt;a rel=&#34;license&#34; href=&#34;http://creativecommons.org/licenses/by-sa/4.0/&#34;&gt;&lt;img alt=&#34;Creative Commons License&#34; style=&#34;border-width:0; margin: 0 auto&#34; src=&#34;https://i.creativecommons.org/l/by-sa/4.0/88x31.png&#34; /&gt;&lt;/a&gt;&lt;br /&gt;This work by Andre Weltsch is licensed under a &lt;a rel=&#34;license&#34; href=&#34;http://creativecommons.org/licenses/by-sa/4.0/&#34;&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.</copyright>
+    <lastBuildDate>Sun, 08 Sep 2019 00:00:00 +0000</lastBuildDate>
     <atom:link href="/" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Topological Sorting</title>
+      <link>https://andreweltsch.com/post/top-sort-1/</link>
+      <pubDate>Sun, 08 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://andreweltsch.com/post/top-sort-1/</guid>
+      <description>&lt;h3 id=&#34;required-knowledge&#34;&gt;Required Knowledge&lt;/h3&gt;
+
+&lt;p&gt;You should know what a directed graph is.&lt;/p&gt;
+
+&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
+
+&lt;p&gt;This post is part of a series on algorithms related to topological sorting.
+In this particular post I want to give a short introduction to the concept
+of a topological sort.
+Additionally I will present Kahn&#39;s algorithm, which topologically sorts a given directed graph.&lt;/p&gt;
+
+&lt;h1 id=&#34;the-basics&#34;&gt;The Basics&lt;/h1&gt;
+
+&lt;p&gt;We start with a definition from &lt;em&gt;Introduction to Algorithms&lt;/em&gt;&lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:Cormen&#34;&gt;&lt;a class=&#34;footnote&#34; href=&#34;#fn:Cormen&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;A &lt;strong&gt;topological sort&lt;/strong&gt; of a directed acyclic graph $D=(V,A)$ is a linear ordering
+of the vertices, s.t. for any edge $(u, v) \in A$, the node $u$ needs to
+appear before $v$ in the ordering.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Not all directed graphs can be topologically sorted.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;A directed graph $G$ is acyclic if and only if it can be topologically sorted.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Therefore algorithms for topological sorting can often be used to check if a graph contains cycles.&lt;/p&gt;
+
+&lt;p&gt;There are two well-known algorithms to find a topological sort of
+a graph. One is based on depth-first search (&lt;em&gt;DFS&lt;/em&gt;) and another one is based on node degrees in the graph.
+The algorithm based on node degrees was developed by Kahn&lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:Kahn&#34;&gt;&lt;a class=&#34;footnote&#34; href=&#34;#fn:Kahn&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;kahns-algorithm&#34;&gt;Kahn&#39;s Algorithm&lt;/h2&gt;
+
+&lt;p&gt;Only nodes that have no predecessor can be in the first position of the ordering.
+Thus you need to start in a node that has no incoming edges. After choosing
+an initial node, we can remove it from the graph and start the search for another
+node without incoming edges.&lt;/p&gt;
+
+&lt;p&gt;This can easily be achieved by maintaining a map of the node degrees.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def kahns_algo(graph):
+    &amp;quot;&amp;quot;&amp;quot;Calculate a topological sort of a given directed graph using
+    Kahn&#39;s algorithm [1].
+
+    graph : (DirectedGraph)
+        a directed graph
+
+    raises : Exception
+        if the graph contains a cycle
+
+    References
+    ----------
+    [1] Kahn, Arthur B. &amp;quot;Topological sorting of large networks.&amp;quot;
+        Communications of the ACM 5.11 (1962): 558-562.
+    &amp;quot;&amp;quot;&amp;quot;
+    # initialize degree map
+    degrees = {}
+    zero_nodes = []
+    top_sort = []
+
+    for u in graph.get_nodes():
+        pred = graph.get_predecessors(u)
+        degrees[u] = len(pred)
+        if len(pred) == 0:
+            zero_nodes.append(u)
+
+    while len(zero_nodes) &amp;gt; 0:
+        u = zero_nodes.pop()
+        top_sort.append(u)
+        for v in graph.get_successors(u):
+            degrees[v] -= 1
+            if degrees[v] == 0:
+                zero_nodes.append(v)
+
+    if len(top_sort) &amp;lt; len(graph.get_nodes()):
+        raise Exception(&amp;quot;Graph contains a cycle&amp;quot;)
+    return top_sort
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;randomized-testing&#34;&gt;Randomized Testing&lt;/h1&gt;
+
+&lt;p&gt;To increase the confidence in our implementation we can perform the usual unit tests
+by comparing the output of the algorithm against known examples.
+Another way is to use randomized testing.
+If we can generate random problem instances and have a reliable test to check if the solution returned by our algorithm is correct, we can use this routine to test the algorithm on all sorts of instances.&lt;/p&gt;
+
+&lt;p&gt;In our case we can directly use the definition of a topological sort to create
+such a checking routine.
+Now for any ordering of the nodes we can create an index that maps the node id
+to its position in the ordering.
+Then we can go over all of the edges and check if the position of the start node
+is smaller than the position of the end node.
+This results in the following algorithm:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def is_topological_sort(graph, sequence):
+    &amp;quot;&amp;quot;&amp;quot;Check if a given sequence is a topological sort of a directed graph.
+
+    graph : (DirectedGraph)
+        a directed graph
+    sequence : (iterable[node])
+        a sequence of nodes in the graph, will be checked if it fulfills the
+        topological sorting condition
+    &amp;quot;&amp;quot;&amp;quot;
+    if set(sequence) != set(graph.get_nodes()):
+        return False
+    index = {v: i for (i, v) in enumerate(sequence)}
+    return all(index[u] &amp;lt; index[v] for (u, v) in graph.get_edges())
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To generate a random instance of a directed acyclic graph on $n$ nodes,
+we can choose random pairs from &lt;span  class=&#34;math&#34;&gt;\( \{(i, j) \,|\, i, j \in \mathbb{N} : 0 \leq i &lt; j &lt; n\} \)&lt;/span&gt;
+and add these as edges to a graph on the nodes &lt;span  class=&#34;math&#34;&gt;\(V = \{0, \ldots, n-1\}\)&lt;/span&gt;.
+Each directed acyclic graph has a topological sort, so it is isomorphic to
+a graph that can described by the construction above. Thus it is possible to generate
+any directed acyclic graph with this method.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def random_dag(n_nodes, edge_threshold=0.5):
+    &amp;quot;&amp;quot;&amp;quot;Create a random directed acyclic graph with n_nodes nodes.
+
+    n_nodes : (int)
+        number of nodes in the graph
+    edge_threshold : (float)
+        value between 0 and 1, take edge (i, j) if random() &amp;gt; edge_threshold
+    &amp;quot;&amp;quot;&amp;quot;
+    dag = DirectedGraph()
+
+    edges = []
+    for u in range(n_nodes):
+        for v in range(u+1, n_nodes):
+            if random() &amp;gt; edge_threshold:
+                dag.add_edge(u, v)
+
+    return dag
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;A complete implementation of this algorithm (i.e. including a graph class and tests), can be found &lt;a href=&#34;https://github.com/aweltsch/blog-algos/blob/master/topological_sort.py&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;div class=&#34;footnotes&#34;&gt;
+
+&lt;hr&gt;
+
+&lt;ol&gt;
+&lt;li id=&#34;fn:Cormen&#34;&gt;Cormen, T. H., Leiserson, C. E., Rivest, R. L., &amp;amp; Stein, C. (2009). &lt;em&gt;Introduction to algorithms&lt;/em&gt;. MIT press.
+ &lt;a class=&#34;footnote-return&#34; href=&#34;#fnref:Cormen&#34;&gt;&lt;sup&gt;^&lt;/sup&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li id=&#34;fn:Kahn&#34;&gt;Kahn, A. B. (1962). &lt;em&gt;Topological sorting of large networks&lt;/em&gt;. Communications of the ACM, 5(11), 558-562.
+ &lt;a class=&#34;footnote-return&#34; href=&#34;#fnref:Kahn&#34;&gt;&lt;sup&gt;^&lt;/sup&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Master&#39;s Thesis</title>
+      <link>https://andreweltsch.com/publication/masters-thesis/</link>
+      <pubDate>Fri, 07 Dec 2018 00:00:00 +0100</pubDate>
+      
+      <guid>https://andreweltsch.com/publication/masters-thesis/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>Finding an Optimal Keyboard Layout</title>

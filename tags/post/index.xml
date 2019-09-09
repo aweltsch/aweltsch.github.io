@@ -6,11 +6,21 @@
     <description>Recent content in post on MATH &#43; PROGRAMMING</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>&amp;copy; Andre Weltsch 2019</copyright>
-    <lastBuildDate>Thu, 26 Jul 2018 12:00:00 +0000</lastBuildDate>
+    <copyright>&lt;a rel=&#34;license&#34; href=&#34;http://creativecommons.org/licenses/by-sa/4.0/&#34;&gt;&lt;img alt=&#34;Creative Commons License&#34; style=&#34;border-width:0; margin: 0 auto&#34; src=&#34;https://i.creativecommons.org/l/by-sa/4.0/88x31.png&#34; /&gt;&lt;/a&gt;&lt;br /&gt;This work by Andre Weltsch is licensed under a &lt;a rel=&#34;license&#34; href=&#34;http://creativecommons.org/licenses/by-sa/4.0/&#34;&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.</copyright>
+    <lastBuildDate>Sun, 08 Sep 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://andreweltsch.com/tags/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Topological Sorting</title>
+      <link>https://andreweltsch.com/post/top-sort-1/</link>
+      <pubDate>Sun, 08 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://andreweltsch.com/post/top-sort-1/</guid>
+      <description>In this post I will give a very short introduction into topological sorting
+of a directed graph. I will also cover randomized testing of the algorithm.</description>
+    </item>
     
     <item>
       <title>Finding an Optimal Keyboard Layout</title>
@@ -18,8 +28,7 @@
       <pubDate>Thu, 26 Jul 2018 12:00:00 +0000</pubDate>
       
       <guid>https://andreweltsch.com/post/layout-optimization/</guid>
-      <description>Introduction Probably everyone that has dived into the world of custom mechanical keyboards, learns pretty fast that almost any aspect of a keyboard can be customized. This includes the arrangement of letters on the keyboard, we refer to this as the keyboard layout. There are already plenty of alternative layouts (Dvorak, Colemak, etc.), but often these are based only loosely on letter frequency and hand ergonomics.
-The purpose of this post is not to advertise some shiny new layout, but to give people the chance to find an optimal keyboard layout for their own needs.</description>
+      <description>In this post I will explore an integer programming formulation for finding an optimal keyboard layout.</description>
     </item>
     
   </channel>

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on MATH &#43; PROGRAMMING</title>
-    <link>https://andreweltsch.com/post/</link>
-    <description>Recent content in Posts on MATH &#43; PROGRAMMING</description>
+    <title>topological sorting on MATH &#43; PROGRAMMING</title>
+    <link>https://andreweltsch.com/tags/topological-sorting/</link>
+    <description>Recent content in topological sorting on MATH &#43; PROGRAMMING</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&lt;a rel=&#34;license&#34; href=&#34;http://creativecommons.org/licenses/by-sa/4.0/&#34;&gt;&lt;img alt=&#34;Creative Commons License&#34; style=&#34;border-width:0; margin: 0 auto&#34; src=&#34;https://i.creativecommons.org/l/by-sa/4.0/88x31.png&#34; /&gt;&lt;/a&gt;&lt;br /&gt;This work by Andre Weltsch is licensed under a &lt;a rel=&#34;license&#34; href=&#34;http://creativecommons.org/licenses/by-sa/4.0/&#34;&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.</copyright>
-    <lastBuildDate>Sun, 01 Jan 2017 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 08 Sep 2019 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://andreweltsch.com/post/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://andreweltsch.com/tags/topological-sorting/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -20,15 +20,6 @@
       <guid>https://andreweltsch.com/post/top-sort-1/</guid>
       <description>In this post I will give a very short introduction into topological sorting
 of a directed graph. I will also cover randomized testing of the algorithm.</description>
-    </item>
-    
-    <item>
-      <title>Finding an Optimal Keyboard Layout</title>
-      <link>https://andreweltsch.com/post/layout-optimization/</link>
-      <pubDate>Thu, 26 Jul 2018 12:00:00 +0000</pubDate>
-      
-      <guid>https://andreweltsch.com/post/layout-optimization/</guid>
-      <description>In this post I will explore an integer programming formulation for finding an optimal keyboard layout.</description>
     </item>
     
   </channel>

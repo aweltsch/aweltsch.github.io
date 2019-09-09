@@ -6,10 +6,38 @@
     <description>Recent content in Tags on MATH &#43; PROGRAMMING</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>&amp;copy; Andre Weltsch 2019</copyright>
+    <copyright>&lt;a rel=&#34;license&#34; href=&#34;http://creativecommons.org/licenses/by-sa/4.0/&#34;&gt;&lt;img alt=&#34;Creative Commons License&#34; style=&#34;border-width:0; margin: 0 auto&#34; src=&#34;https://i.creativecommons.org/l/by-sa/4.0/88x31.png&#34; /&gt;&lt;/a&gt;&lt;br /&gt;This work by Andre Weltsch is licensed under a &lt;a rel=&#34;license&#34; href=&#34;http://creativecommons.org/licenses/by-sa/4.0/&#34;&gt;Creative Commons Attribution-ShareAlike 4.0 International License&lt;/a&gt;.</copyright>
+    <lastBuildDate>Sun, 08 Sep 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://andreweltsch.com/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>graph theory</title>
+      <link>https://andreweltsch.com/tags/graph-theory/</link>
+      <pubDate>Sun, 08 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://andreweltsch.com/tags/graph-theory/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>post</title>
+      <link>https://andreweltsch.com/tags/post/</link>
+      <pubDate>Sun, 08 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://andreweltsch.com/tags/post/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>topological sorting</title>
+      <link>https://andreweltsch.com/tags/topological-sorting/</link>
+      <pubDate>Sun, 08 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://andreweltsch.com/tags/topological-sorting/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>integer programming</title>
@@ -44,15 +72,6 @@
       <pubDate>Thu, 26 Jul 2018 12:00:00 +0000</pubDate>
       
       <guid>https://andreweltsch.com/tags/optimization/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>post</title>
-      <link>https://andreweltsch.com/tags/post/</link>
-      <pubDate>Thu, 26 Jul 2018 12:00:00 +0000</pubDate>
-      
-      <guid>https://andreweltsch.com/tags/post/</guid>
       <description></description>
     </item>
     
