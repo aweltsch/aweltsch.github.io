@@ -102,22 +102,22 @@ $$</p>
 <p>This is expression is true if the keys $k, l \in K$ are assigned to the fingers $f_1, f_2 \in F$.</p>
 <p>We can use this to define the following sets of key combinations:</p>
 <p>$$
-B_{\text{same}} = { (k,l) \in K^2 | \exists f \in F : q_{f,f}(k,l) } \
-B_{\text{pinky-ring}} = { (k,l) \in K^2 | q_{p_l,r_l}(k,l) \lor q_{p_r,r_r}(k,l) } \
+B_{\text{same}} = { (k,l) \in K^2 | \exists f \in F : q_{f,f}(k,l) } \\
+B_{\text{pinky-ring}} = { (k,l) \in K^2 | q_{p_l,r_l}(k,l) \lor q_{p_r,r_r}(k,l) } \\
 B_{\text{ring-middle}} = { (k,l) \in K^2 | q_{r_l,m_l}(k,l) \lor q_{r_r,m_r}(k,l) }
 $$</p>
 <p>Finally we introduce binary variables for the bigrams</p>
 <p>$$
-\forall (k,l) \in B_{\text{same}}, (s,t) \in S^2 : x_{k,l,s,t} \in {0,1}\
-\forall (k,l) \in B_{\text{pinky-ring}}, (s,t) \in S^2 : y_{k,l,s,t} \in {0,1}\
+\forall (k,l) \in B_{\text{same}}, (s,t) \in S^2 : x_{k,l,s,t} \in {0,1}\\
+\forall (k,l) \in B_{\text{pinky-ring}}, (s,t) \in S^2 : y_{k,l,s,t} \in {0,1}\\
 \forall (k,l) \in B_{\text{ring-middle}}, (s,t) \in S^2 : z_{k,l,s,t} \in {0,1}
 $$</p>
 <p>In order to force a bigram variable to be $1$ iff the current assignment contains
 the bigram, we add the following constraints to the program:</p>
 <p>$$
-v_{k,s} + v_{k,t} + v_{l,s} + v_{l,t} - x_{k,l,s,t} \leq 1, , \forall (k,l) \in B_{\text{same}}, , (s,t) \in S^2 \
-v_{k,s} + v_{k,t} + v_{l,s} + v_{l,t} - y_{k,l,s,t} \leq 1, , \forall (k,l) \in B_{\text{pinky-ring}}, , (s,t) \in S^2 \
-v_{k,s} + v_{k,t} + v_{l,s} + v_{l,t} - z_{k,l,s,t} \leq 1, , \forall (k,l) \in B_{\text{ring-middle}}, , (s,t) \in S^2 \
+v_{k,s} + v_{k,t} + v_{l,s} + v_{l,t} - x_{k,l,s,t} \leq 1, , \forall (k,l) \in B_{\text{same}}, , (s,t) \in S^2 \\
+v_{k,s} + v_{k,t} + v_{l,s} + v_{l,t} - y_{k,l,s,t} \leq 1, , \forall (k,l) \in B_{\text{pinky-ring}}, , (s,t) \in S^2 \\
+v_{k,s} + v_{k,t} + v_{l,s} + v_{l,t} - z_{k,l,s,t} \leq 1, , \forall (k,l) \in B_{\text{ring-middle}}, , (s,t) \in S^2 \\
 $$</p>
 <p>To highlight why this works, consider the following arguments for some bigram $s, t$ and keys $k, l$.
 From our previous constraints we know that each symbol can only be assigned to a single key.
@@ -145,9 +145,9 @@ so it is safe to assume, that in an optimal solution the variable is only one, i
 </ul>
 <p>Finally we can combine the variables and parameters to define the objective</p>
 <p>$$\begin{eqnarray}
-\min_{v,x,y,z} &amp; \sum_{s \in S} \sum_{k \in K} f_s \cdot c_k \cdot v_{k,s}\
-+&amp; \sum_{(s, t) \in S^2}\sum_{(k,l) \in B_{\text{same}}} g_{s,t}\cdot a_{|r(k) - r(l)|}\cdot x_{k,l,s,t} \
-+&amp; \sum_{(s, t) \in S^2}\sum_{(k,l) \in B_{\text{pinky-ring}}} g_{s,t}\cdot b_{|r(k) - r(l)|}\cdot y_{k,l,s,t} \
+\min_{v,x,y,z} &amp; \sum_{s \in S} \sum_{k \in K} f_s \cdot c_k \cdot v_{k,s}\\
++&amp; \sum_{(s, t) \in S^2}\sum_{(k,l) \in B_{\text{same}}} g_{s,t}\cdot a_{|r(k) - r(l)|}\cdot x_{k,l,s,t} \\
++&amp; \sum_{(s, t) \in S^2}\sum_{(k,l) \in B_{\text{pinky-ring}}} g_{s,t}\cdot b_{|r(k) - r(l)|}\cdot y_{k,l,s,t} \\
 +&amp; \sum_{(s, t) \in S^2}\sum_{(k,l) \in B_{\text{ring-middle}}} g_{s,t}\cdot c_{|r(k) - r(l)|}\cdot z_{k,l,s,t}
 \end{eqnarray}$$</p>
 <h1 id="speed-ups-and-trade-offs">Speed-Ups and Trade-Offs</h1>
