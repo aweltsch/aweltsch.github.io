@@ -1,0 +1,229 @@
+<html>
+  <head>
+    <title>Finding an Optimal Keyboard Layout</title>
+    <link rel="stylesheet" type="text/css" href="/static/site.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_CHTML"></script>
+    <script>
+      MathJax.Hub.Config({
+          tex2jax: {
+                inlineMath: [['$','$'], ['\\(','\\)']],
+                processEscapes: true
+              }
+      });
+    </script>
+  </head>
+  <body>
+<!--<p>+++-->
+<!--date = &quot;2018-07-26T12:00:00&quot;-->
+<!--draft = false-->
+<!--tags = [&quot;post&quot;, &quot;integer programming&quot;, &quot;linear programming&quot;, &quot;keyboards&quot;, &quot;optimization&quot;]-->
+<!--title = &quot;Finding an Optimal Keyboard Layout&quot;-->
+<!--math = true-->
+<!--summary = &quot;&quot;&quot;-->
+<!--In this post I will explore an integer programming formulation for finding an optimal keyboard layout.-->
+<!--&quot;&quot;&quot;</p>-->
+<h1 id="introduction">Introduction</h1>
+<p>Probably everyone that has dived into the world of custom mechanical keyboards,
+learns pretty fast that almost any aspect of a keyboard can be customized.
+This includes the arrangement of letters on the keyboard, we refer to this
+as the keyboard layout.
+There are already plenty of alternative layouts
+(<a href="https://en.wikipedia.org/wiki/Dvorak_Simplified_Keyboard">Dvorak</a>,
+<a href="https://en.wikipedia.org/wiki/Colemak">Colemak</a>, etc.),
+but often these are based only loosely on letter frequency and hand ergonomics.</p>
+<p>The purpose of this post is not to advertise some shiny new layout, but to
+give people the chance to find an <strong>optimal</strong> keyboard layout for their own
+needs.</p>
+<p>While I was comparing different layouts I stumbled upon the <a href="https://colemakmods.github.io/mod-dh/">Colemak Mod-DH</a> layout
+which uses a mathematical model to compare well-known layouts.
+As I was reading about the model, I wondered if it is possible to find a provably
+optimal layout according to this particular model.</p>
+<p>Eventhough the sheer number of possible layouts prohibits enumeration, 
+the answer fortunately is still <em>&quot;YES&quot;</em>. The model can be formulated
+as an <strong>integer program</strong>. These kind of mathematical optimization problems
+have a strong theoretical foundation and have powerful solvers available.</p>
+<h1 id="the-model">The Model</h1>
+<p>In this section I want to first describe the model informally and in the second part
+I will precisely introduce variables/constraints that fit the description.</p>
+<h2 id="the-informal-description">The informal description</h2>
+<p>The model is based on a rather intuitive and simple categorization of the keys.
+For each key on the keyboard we define a value which is supposed to estimate how hard
+it is to press the corresponding key.
+In our model higher values correspond to harder to reach keys.
+What we try to achieve with this is that common letters like &#39;T&#39; or &#39;E&#39; will be
+assigned to keys that are easy to reach.</p>
+<p>Another thing we care about is so-called &#39;bigrams&#39;. The word bigrams refers
+to combinations of two letters, examples might be &#39;th&#39;, &#39;he&#39;, &#39;ou&#39;, etc.
+To achieve better speed and ergonomics we want to minimize finger travel, so
+any bigram in which we have to use the same finger for both letters will be 
+penalized by an appropriate factor. Similarly we apply a penalty for
+pinky-ring-finger bigrams and ring-middle-finger bigrams.</p>
+<h2 id="the-formal-model">The formal model</h2>
+<p>We will start with a list of some definitions</p>
+<ul>
+<li>$K$ is the set of available keys</li>
+<li>$S$ is the set of symbols we want to assign</li>
+<li>$F$ is the set of fingers we have</li>
+<li>$R = \{0, \ldots, r_{\max{}}\}$ is the set of rows</li>
+<li>$f : K \to F$ is a function that assigns a unique finger to each key</li>
+<li>$r : K \to R$ is a function that assigns a row to each key</li>
+</ul>
+<p>For each key $k \in K$ and each symbol $s \in S$ we introduce a binary
+variable $v_{k,s}$ that indicates if the the symbol $s$ is assigned to key $k$:</p>
+<p>$$
+\forall k \in K, s \in S : v_{k,s} \in {0,1}
+$$</p>
+<p>With these variables we are finally able to formulate the constraints that define
+a valid layout assignment.
+The first constraint will be that every symbol is assigned to exactly one key.</p>
+<p>$$
+\sum_{k \in K} v_{k,s} = 1, , \forall s \in S
+$$</p>
+<p>Also we need to add a constraint that limits the number of symbols to one symbol per key.</p>
+<p>$$
+\sum_{s \in S} v_{k,s} \leq 1, , \forall k \in K
+$$</p>
+<h3 id="defining-bigram-variables">Defining bigram variables</h3>
+<p>Now we need to consider the bigram penalties. In order to account for these bigram
+penalties, we introduce variables for each bigram $(s, t) \in S \times S$ and each (relevant)
+key combination $(k, l) \in K \times K$.
+In our case a relevant key combination is a combination of two keys, in which
+both keys correspond to the same finger (same-finger bigram), one key is assigned to 
+a pinky and the other key is assigned to the ring finger of the same hand (pinky-ring bigram)
+or one key is assigned to a ring finger and the other one to a middle finger of the same hand (ring-middle bigram).
+For notation purposes we define the left and right pinky finger $p_l, p_r \in F$, the left and right
+ring finger $r_l, r_r \in F$ and the left and right middle finger $m_l, m_r \in F$.</p>
+<p>In order to make the constraint on key combinations easier to write,
+we introduce the following short-hand notation:</p>
+<p>$$
+q_{f_1,f_2}(k,l) := (f(k) = f_1 \land f(l) = f_2) \lor (f(k) = f_2 \land f(l) = f_1)
+$$</p>
+<p>This is expression is true if the keys $k, l \in K$ are assigned to the fingers $f_1, f_2 \in F$.</p>
+<p>We can use this to define the following sets of key combinations:</p>
+<p>$$
+B_{\text{same}} = { (k,l) \in K^2 | \exists f \in F : q_{f,f}(k,l) } \
+B_{\text{pinky-ring}} = { (k,l) \in K^2 | q_{p_l,r_l}(k,l) \lor q_{p_r,r_r}(k,l) } \
+B_{\text{ring-middle}} = { (k,l) \in K^2 | q_{r_l,m_l}(k,l) \lor q_{r_r,m_r}(k,l) }
+$$</p>
+<p>Finally we introduce binary variables for the bigrams</p>
+<p>$$
+\forall (k,l) \in B_{\text{same}}, (s,t) \in S^2 : x_{k,l,s,t} \in {0,1}\
+\forall (k,l) \in B_{\text{pinky-ring}}, (s,t) \in S^2 : y_{k,l,s,t} \in {0,1}\
+\forall (k,l) \in B_{\text{ring-middle}}, (s,t) \in S^2 : z_{k,l,s,t} \in {0,1}
+$$</p>
+<p>In order to force a bigram variable to be $1$ iff the current assignment contains
+the bigram, we add the following constraints to the program:</p>
+<p>$$
+v_{k,s} + v_{k,t} + v_{l,s} + v_{l,t} - x_{k,l,s,t} \leq 1, , \forall (k,l) \in B_{\text{same}}, , (s,t) \in S^2 \
+v_{k,s} + v_{k,t} + v_{l,s} + v_{l,t} - y_{k,l,s,t} \leq 1, , \forall (k,l) \in B_{\text{pinky-ring}}, , (s,t) \in S^2 \
+v_{k,s} + v_{k,t} + v_{l,s} + v_{l,t} - z_{k,l,s,t} \leq 1, , \forall (k,l) \in B_{\text{ring-middle}}, , (s,t) \in S^2 \
+$$</p>
+<p>To highlight why this works, consider the following arguments for some bigram $s, t$ and keys $k, l$.
+From our previous constraints we know that each symbol can only be assigned to a single key.
+Thus the maximum of the sum</p>
+<p>$$
+v_{k,s} + v_{k,t} + v_{l,s} + v_{l,t}
+$$</p>
+<p>is 2, in fact it is 2 if and only if the symbol assignment contains the bigram $s,t$.
+So only in this case</p>
+<p>$$
+x_{k,l,s,t}
+$$</p>
+<p><em>has</em> to be equal to one.
+We also know that we assign a non-negative weight to this variable in the objective function. We want to minimze our objective,
+so it is safe to assume, that in an optimal solution the variable is only one, if the corresponding bigram exists.</p>
+<h3 id="the-objective-function">The objective function</h3>
+<p>Now it is time to specify the objective function, therefore we define some parameters:</p>
+<ul>
+<li>$f_s$ symbol frequency for each symbol $s \in S$</li>
+<li>$g_{s,t}$ bigram frequency for each bigram $(s, t) \in S$</li>
+<li>$c_{k}$ key penalty for each key $k \in K$</li>
+<li>$a_i$ same-finger bigram penalty for row difference $i \in R$</li>
+<li>$b_i$ pinky-ring bigram penalty for row difference $i \in R$</li>
+<li>$c_i$ ring-middle bigram penalty for row difference $i \in R$</li>
+</ul>
+<p>Finally we can combine the variables and parameters to define the objective</p>
+<p>$$\begin{eqnarray}
+\min_{v,x,y,z} &amp; \sum_{s \in S} \sum_{k \in K} f_s \cdot c_k \cdot v_{k,s}\
++&amp; \sum_{(s, t) \in S^2}\sum_{(k,l) \in B_{\text{same}}} g_{s,t}\cdot a_{|r(k) - r(l)|}\cdot x_{k,l,s,t} \
++&amp; \sum_{(s, t) \in S^2}\sum_{(k,l) \in B_{\text{pinky-ring}}} g_{s,t}\cdot b_{|r(k) - r(l)|}\cdot y_{k,l,s,t} \
++&amp; \sum_{(s, t) \in S^2}\sum_{(k,l) \in B_{\text{ring-middle}}} g_{s,t}\cdot c_{|r(k) - r(l)|}\cdot z_{k,l,s,t}
+\end{eqnarray}$$</p>
+<h1 id="speed-ups-and-trade-offs">Speed-Ups and Trade-Offs</h1>
+<p>There are many binary variables in the above program;
+with commercial solvers, solving a typical instance, usually
+works really well and is fast, but if you are using an open-source solver, it might make
+sense to apply some modifications to get <em>good</em> results fast.</p>
+<p>The biggest problem are the bigrams, they introduce a variable for each bigram and
+two related keys. By using only the relevant bigrams you can 
+reduce the number of variables drastically. One way to do this is to take
+only the most frequent bigrams that make up the major percentage of all bigrams (for example 99%).</p>
+<p>Another improvement might be to consider symmetries in the layout. For example
+matrix layouts usually are symmetric between both hands, meaning that each
+solution has a corresponding solution that is mirrored. In cases
+like this it might be a good idea to assign the most frequent key to one
+side.</p>
+<h1 id="results">Results</h1>
+<p>I implemented the model in python using the <a href="http://www.pyomo.org/">Pyomo</a> optimization library.
+My implementation can be found <a href="https://www.github.com/aweltsch">here</a>.</p>
+<p>An optimal layout for the standard values from the Mod-DH homepage:</p>
+<table>
+<thead>
+<tr>
+<th>col0</th>
+<th>col1</th>
+<th>col2</th>
+<th>col3</th>
+<th>col4</th>
+<th>col5</th>
+<th>col6</th>
+<th>col7</th>
+<th>col8</th>
+<th>col9</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>x</td>
+<td>c</td>
+<td>l</td>
+<td>m</td>
+<td>j</td>
+<td>/</td>
+<td>f</td>
+<td>u</td>
+<td>,</td>
+<td>q</td>
+</tr>
+<tr>
+<td>o</td>
+<td>s</td>
+<td>r</td>
+<td>t</td>
+<td>v</td>
+<td>p</td>
+<td>n</td>
+<td>e</td>
+<td>a</td>
+<td>i</td>
+</tr>
+<tr>
+<td>z</td>
+<td>g</td>
+<td>w</td>
+<td>d</td>
+<td>k</td>
+<td>b</td>
+<td>h</td>
+<td>y</td>
+<td>.</td>
+<td>;</td>
+</tr>
+</tbody></table>
+  </body>
+  <footer>
+    <p>Contact: contact __strudel__ weltsch.de</p>
+    <p>
+      <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work by Andre Weltsch is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+    </p>
+  </footer>
+</html>
