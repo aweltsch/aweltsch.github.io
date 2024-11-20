@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Mark-and-Sweep Garbage Collection in PyPy</title>
+    <link rel="stylesheet" type="text/css" href="/static/site.css"/>
+    <script ref="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_CHTML-full"></script>
+  </head>
+  <body>
+    <h1 id="introduction">Introduction</h1>
+    <p>Lately I have become quite interested in garbage collection
+    algorithms Since garbage collection massively affects code performance,
+    there have been quite elaborate garbage collection algorithms devised in
+    the JVM. What initially sparked my interest was the <a
+                                                            href="https://github.com/mmtk/mmtk-core">mmtk toolkit</a> and the <a
+                                                            href="https://arxiv.org/abs/2210.17175v1">LXR paper</a>.</p>
+    <p>I decided to dive deeper into the topic and consulted the Garbage
+    Collection Handbook <a href="#fn1" class="footnote-ref" id="fnref1"
+                                                            role="doc-noteref"><sup>1</sup></a>, which gives a very nice and
+                                                          structured overview of the basic algorithms and their performance
+                                                          characteristics.</p>
+    <p>I also went through a few papers related to GC two notable ones: - A
+    unified Theory of Garbage Collection <a href="#fn2" class="footnote-ref"
+                                                        id="fnref2" role="doc-noteref"><sup>2</sup></a>, which investigated the
+                                                      “dualism” between garbage collection and reference counting - On-the-Fly
+                                                      Garbage Collection: An Exercise in Cooperation <a href="#fn3"
+                                                                                                        class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>,
+                                                                                                      which is a short but succinct paper on concurrent garbage collector
+                                                                                                      (related to Golang’s GC implementation)</p>
+    <p>One of my main goals was to implement a real garbage collector in a
+    real interpreter. What I found out is that the PyPy interpreter has been
+    adapted to support plugable garbage collectors, hence I decided to
+    implement a simple garbage collector in PyPy.</p>
+    <h1 id="my-idea">My idea</h1>
+    <p>Choose the simplest garbage collection algorithm first, so you can
+    familiarize yourself with the code base. From my POV the most basic
+    algorithm is the mark-and-sweep garbage collection.</p>
+    <p>The algorithm is quite simple: 1. Mark: Traverse the whole object
+    graph (<em>tracing</em>) from all root objects and mark every reachable
+    object 2. Sweep: Examine every heap object and free object if not marked
+    as reachable</p>
+    <h1 id="how-it-went">How it went</h1>
+    <p>So here’s condensed version of the implementation steps and issues I
+    found along the way. Since the PyPy test suite was quite helpful I did
+    some kind of TDD for the implementation. There is already a few GC
+    implementations in the interpreter and the <code>SemiSpaceGC</code>
+    seems to be the simplest one. This gave me a good starting point for the
+    mark-and-sweep.</p>
+    <h3 id="the-initial-implementation">The initial implementation</h3>
+    <p>Starting from what I have seen in <code>SemiSpaceGC</code> I created
+    a class that derives from the base classes and added a test</p>
+    <p>Unfortunately the <a
+                             href="https://github.com/pypy/pypy/commit/95c08cf671a66faaaf2714d66aba8460f94ad5e8">basic
+                             setup</a> produced an
+                           <code>AttributeError: 'SimpleMarkSweepGC' object has no attribute 'HDR'</code>
+                           when executing the tests. I guess the interface in the
+                           <code>GCBase</code> could be improved to provide some more guidance on
+                           what the interface needs. We will run into some more of that later
+                           on.</p>
+    <p>The solution was to do what all the other gc implementations are also
+    doing, so I looked the semispace gc to find out what to do: Each GC
+    class defines a header struct to save info on garbage collection,
+    <code>HDR = lltype.Struct('header', ('tid', lltype.Signed))</code> After
+    a few more AttributeErrors I ended up with <a
+                                                   href="https://github.com/pypy/pypy/commit/95c08cf671a66faaaf2714d66aba8460f94ad5e8#diff-cd6d69f151e7cc01da83fc97cc1207376709999db310b59a0fe6489634f16ad8R12">this
+                                                   minimal setup</a></p>
+    <p>From inspecting the rest of the gc implementations it seemed that
+    <code>malloc_varsize</code> / <code>malloc_fixedsize</code> create new
+    objects that are managed by the GC, the <code>collect</code> methods
+    runs a major collection of the GC and
+    <code>init_gc_object_immortal</code> usually sets a flag for immortal
+    objects (<a
+                 href="https://github.com/aweltsch/pypy/blob/6acc3aeb7200440c7385a1508dc1ce420c829020/rpython/memory/gctypelayout.py#L453">called
+                 from <code>consider_constant</code></a>).</p>
+    <h3 id="allocating-memory">Allocating memory</h3>
+    <p>Having the basic structure in place, I could implement the first
+    version of the GC (I guess you could call it a NoGC <a
+                                                            href="https://docs.mmtk.io/portingguide/howto/nogc.html">similar to
+                                                            mmtk</a>) that allocates memory via the <code>raw_malloc</code>
+                                                          function. Using <code>raw_malloc</code> is in contrast to what the
+                                                          semispace GC does since most of the GC implementations in PyPy are using
+                                                          arena based allocation. <a
+                                                                                      href="https://github.com/pypy/pypy/commit/6acc3aeb7200440c7385a1508dc1ce420c829020">The
+                                                                                      simple implementation</a> already satisfies 20 / 45 tests. After the
+                                                                                    basic setup we can finally look into implementing the mark and sweep
+                                                                                    phases.</p>
+    <h3 id="mark-and-sweep">Mark and sweep</h3>
+    <p>We need to track all the objects on the heap and introduce an
+    <code>AddressDeque</code> which holds the references for that. (see also
+    <code>HybridGC</code> for a similar implementation) Every time we
+    allocate we can add the address to our deque and in the sweep phase we
+    can iterate through all the references.</p>
+    <h4 id="simple-mark-sweep-implementation">Simple mark sweep
+      implementation</h4>
+    <p>We use DFS to mark surviving objects from the roots. Note: It is
+    quite hard to follow where you are dealing with addresses vs pointers vs
+    objects in rpython… This is the <a
+                                        href="https://github.com/aweltsch/pypy/commit/047510a782504a7fb40906782a346892b76a6f6a">resulting
+                                        implementation</a></p>
+    <p>Most tests that are failing are related to finalizers / weakrefs /
+    collections.</p>
+    <h3 id="weak-refs">Weak Refs</h3>
+    <p>Weak references are references that don’t affect the “reachability”
+    of an object. The weak reference can either be valid (pointed-to object
+    is alive) or invalid (pointed-to object has been collected).</p>
+    <p>Similar to other implementations <a
+                                            href="https://github.com/aweltsch/pypy/commit/0f08fce20f8fcb673726e507c7132a4316dc1a1c">We
+                                            maintain list of objects that contain weakrefs</a>. then for each object
+                                          that contains a weakref we check if the object it is pointing to
+                                          survives. If it does not survive, we invalidate the weakref (setting to
+                                          NULL), otherwise we “keep” it.</p>
+    <h3 id="finalizers">Finalizers</h3>
+    <p>A finalizer is a function that runs when an object is about to be
+    collected. In PyPy there’s essentially two types of finalizers: - The
+    <code>__del__</code> method (set via
+    <code>malloc_fixedsize(..., needs_finalizer=True)</code> - <a
+                                                                   href="https://doc.pypy.org/en/latest/discussion/finalizer-order.html">FinalizerQueues</a>
+    which have to be explicitly instantiated</p>
+    <p>Dealing with finalizers is not straight-forward since finalizers can
+    revice objects and you need to be careful with the execution order.</p>
+    <p>As in the other GCs we will keep track of both types of finalizers in
+    the same queue <code>objects_with_finalizers</code>. Each entry in the
+    queue is essentially a pair (object, finalizer_queue_index)
+    <strong>del</strong> method gets index -1, finalier queues get a proper
+    index.</p>
+    <p>We need to sweep before executing the finalizers, otherwise a
+    finalizer might introduce new objects that are <em>not</em> marked as
+    surviving by default The resulting code is <a
+                                                   href="https://github.com/pypy/pypy/commit/2c76815c8a90ddbe189de3de612902c531765783">part
+                                                   of this commit</a>.</p>
+    <h3 id="the-remaining-test-cases">The remaining test cases</h3>
+    <p>The remaining test cases were all related to starting a collection
+    while another collection is already going on (e.g. via the infamous
+    finalizers…)</p>
+    <pre><code>=========================== short test summary info ============================
+FAIL rpython/memory/test/test_marksweep.py::TestSimpleMarkSweep::()::test_finalizer_calls_malloc
+FAIL rpython/memory/test/test_marksweep.py::TestSimpleMarkSweep::()::test_finalizer_calls_malloc_during_minor_collect
+FAIL rpython/memory/test/test_marksweep.py::TestSimpleMarkSweep::()::test_collect_during_collect</code></pre>
+    <p>To prohibit “nested” garbage collection, we <a
+                                                       href="https://github.com/pypy/pypy/commit/12191acd57148e0e85d8bd797834878d8af10418">introduce
+                                                       a lock</a> (in this case a simple variable since the implementation is
+                                                     not concurrent) so that no collection can happen while another
+                                                     collection is taking place.</p>
+    <h1 id="learnings">Learnings</h1>
+    <p>At the end of the day the Mark &amp; Sweep algorithm is not a complex
+    algorithm, but implementing it in a real codebase was more challenging
+    than expected since I had to dive deep into the inner workings of the
+    PyPy interpreter and RPython. Thankfully the PyPy repsoitory contains a
+    great test-suite to validate the implementation.</p>
+    <p>Finalizers make your life harder (at least with regards to GC) since
+    finalizers can e.g. revive objects, so extra steps need to be taken
+    before freeing memory. There’s no finalizers in Golang or Java (at least
+    since Jav SE9, for a good explanation why that’s the case read the
+    deprecation notice for the <a
+                                   href="https://docs.oracle.com/javase/9/docs/api/java/lang/Object.html#finalize--"><code>Object.finalize</code>
+                                   method</a>)</p>
+    <p>It was quite fascinating to dive deeper into the implementation of
+    PyPy and to look into the usage of RPython as a low-level implementation
+    language. I’m quite interested in building a small interpreter for some
+    toy language to play around with RPython it a little more.</p>
+    <p>My next GC project will probably be a compacting collector.</p>
+    <section id="footnotes" class="footnotes footnotes-end-of-document"
+                            role="doc-endnotes">
+      <hr />
+      <ol>
+        <li id="fn1"><p>Jones, Richard, Antony Hosking, and Eliot Moss. The
+          garbage collection handbook: the art of automatic memory management. CRC
+          Press, 2023.<a href="#fnref1" class="footnote-back"
+                                        role="doc-backlink">↩︎</a></p></li>
+        <li id="fn2"><p>Bacon, David F., Perry Cheng, and V. T. Rajan. “A
+          unified theory of garbage collection.” Proceedings of the 19th annual
+          ACM SIGPLAN conference on Object-oriented programming, systems,
+          languages, and applications. 2004.<a href="#fnref2"
+                                               class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+        <li id="fn3"><p>Dijkstra, Edsger W., et al. “On-the-fly garbage
+          collection: An exercise in cooperation.” Communications of the ACM 21.11
+          (1978): 966-975.<a href="#fnref3" class="footnote-back"
+                                            role="doc-backlink">↩︎</a></p></li>
+      </ol>
+    </section>
+  </body>
+  <footer>
+    <p>Contact: contact __strudel__ weltsch.de</p>
+    <p>
+    <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work by Andre Weltsch is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+    </p>
+  </footer>
+</html>
